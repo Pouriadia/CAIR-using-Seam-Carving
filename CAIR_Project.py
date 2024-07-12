@@ -121,13 +121,16 @@ def seam_carve(img, depth_map, saliency_map, num_seams, alpha, beta, gamma):
     return img
 
 
-# Read the input image and depth map
-input_img = cv2.imread('Input\Dolls.png')
-depth_map = cv2.imread('Input\Dolls_DMap.png', cv2.IMREAD_GRAYSCALE)
-saliency_map = cv2.imread('Input\Dolls_SMap.png', cv2.IMREAD_GRAYSCALE)
-# Number of seams to remove
-num_seams = int(input_img.shape[1]/2)
 
+# Image and removal percentage
+targetImage = input('Enter the target image\'s name: ')
+percentage = int(input('Enter the percentage of width to be removed: '))
+
+# Read the input image and depth map and saliency map and calculate the number of seams to remove
+input_img = cv2.imread('Input\\' + targetImage + '.png')
+depth_map = cv2.imread('Input\\' + targetImage + '_DMap.png', cv2.IMREAD_GRAYSCALE)
+saliency_map = cv2.imread('Input\\' + targetImage + '_SMap.png', cv2.IMREAD_GRAYSCALE)
+num_seams = int((percentage / 100) * input_img.shape[1])
 
 # Perform seam carving
 output_img1 = seam_carve(input_img, depth_map,saliency_map, num_seams, 0.5,0,0.5)
@@ -160,4 +163,4 @@ print(f"Sum1: {sum1}, Sum2: {sum2}")
 
 
 # Save the result
-cv2.imwrite('Output\DollsFinal45145.png', output_img)
+cv2.imwrite('Output\Baby505.png', output_img)
