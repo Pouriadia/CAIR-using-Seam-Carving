@@ -48,7 +48,7 @@ def normalize_image(img):
     normalized = (img - img.min()) / (img.max() - img.min())
     return normalized
 
-def compute_combined_energy(img, depth_map,saliency_map, alpha=0.1, beta=0.8, gamma=0.1):
+def compute_combined_energy(img, depth_map,saliency_map, alpha, beta, gamma):
     gradient_energy = normalize_image(compute_gradient_energy(img))
     saliency_energy = normalize_image(saliency_map)
     depth_energy = normalize_image(depth_map)
@@ -110,9 +110,9 @@ def remove_seam2(img, seam):
         output[i, :] = np.delete(img[i, :], seam[i])
     return output
 
-def seam_carve(img, depth_map, saliency_map, num_seams):
+def seam_carve(img, depth_map, saliency_map, num_seams, alpha, beta, gamma):
     for _ in range(num_seams):
-        energy_map = compute_combined_energy(img, depth_map, saliency_map)
+        energy_map = compute_combined_energy(img, depth_map, saliency_map, alpha, beta, gamma)
         seam = find_seam(img, energy_map)
         img = remove_seam(img, seam)
         depth_map = remove_seam2(depth_map, seam)
@@ -122,14 +122,42 @@ def seam_carve(img, depth_map, saliency_map, num_seams):
 
 
 # Read the input image and depth map
-input_img = cv2.imread('Input\Snowman.png')
-depth_map = cv2.imread('Input\Snowman_DMap.png', cv2.IMREAD_GRAYSCALE)
-saliency_map = cv2.imread('Input\Snowman_SMap.png', cv2.IMREAD_GRAYSCALE)
+input_img = cv2.imread('Input\Dolls.png')
+depth_map = cv2.imread('Input\Dolls_DMap.png', cv2.IMREAD_GRAYSCALE)
+saliency_map = cv2.imread('Input\Dolls_SMap.png', cv2.IMREAD_GRAYSCALE)
 # Number of seams to remove
-num_seams = 150
+num_seams = int(input_img.shape[1]/2)
+
 
 # Perform seam carving
-output_img = seam_carve(input_img, depth_map,saliency_map, num_seams)
+output_img1 = seam_carve(input_img, depth_map,saliency_map, num_seams, 0.5,0,0.5)
+output_img2 = seam_carve(input_img, depth_map,saliency_map, num_seams, 0.45, 0.1, 0.45)
+
+# print(f"Output image shape: {output_img.shape[0]} x {output_img.shape[1]}")
+# output_img = cv2.resize(output_img, (output_img.shape[1] - 50 , output_img.shape[0]), interpolation=cv2.INTER_LINEAR)
+#compute energy map of the output images
+
+gradiant_map_1 = normalize_image(compute_gradient_energy(output_img1))
+gradiant_map_2 = normalize_image(compute_gradient_energy(output_img2))
+
+
+# Check sum of energy map and write the output image where the seams are removed
+sum1 = np.sum(gradiant_map_1)
+sum2 = np.sum(gradiant_map_2)
+
+
+
+
+if sum1 < sum2:
+    output_img = output_img1
+    print('1')
+else:
+    output_img = output_img2
+    print('2')
+
+
+print(f"Sum1: {sum1}, Sum2: {sum2}")
+
 
 # Save the result
-cv2.imwrite('Output\Snowman181.png', output_img)
+cv2.imwrite('Output\DollsFinal45145.png', output_img)
