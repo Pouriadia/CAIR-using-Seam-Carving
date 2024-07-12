@@ -48,7 +48,7 @@ def normalize_image(img):
     normalized = (img - img.min()) / (img.max() - img.min())
     return normalized
 
-def compute_combined_energy(img, depth_map,saliency_map, alpha=0.1, beta=0.8, gamma=0.1):
+def compute_combined_energy(img, depth_map,saliency_map, alpha=0.5, beta=0, gamma=0.5):
     gradient_energy = normalize_image(compute_gradient_energy(img))
     saliency_energy = normalize_image(saliency_map)
     depth_energy = normalize_image(depth_map)
@@ -121,15 +121,18 @@ def seam_carve(img, depth_map, saliency_map, num_seams):
     return img
 
 
-# Read the input image and depth map
-input_img = cv2.imread('Input\Snowman.png')
-depth_map = cv2.imread('Input\Snowman_DMap.png', cv2.IMREAD_GRAYSCALE)
-saliency_map = cv2.imread('Input\Snowman_SMap.png', cv2.IMREAD_GRAYSCALE)
-# Number of seams to remove
-num_seams = 150
+# Image and removal percentage
+targetImage = input('Enter the target image\'s name: ')
+percentage = int(input('Enter the percentage of width to be removed: '))
+
+# Read the input image and depth map and saliency map and calculate the number of seams to remove
+input_img = cv2.imread('Input\\' + targetImage + '.png')
+depth_map = cv2.imread('Input\\' + targetImage + '_DMap.png', cv2.IMREAD_GRAYSCALE)
+saliency_map = cv2.imread('Input\\' + targetImage + '_SMap.png', cv2.IMREAD_GRAYSCALE)
+num_seams = int((percentage / 100) * input_img.shape[1])
 
 # Perform seam carving
 output_img = seam_carve(input_img, depth_map,saliency_map, num_seams)
 
 # Save the result
-cv2.imwrite('Output\Snowman181.png', output_img)
+cv2.imwrite('Output\Baby505.png', output_img)
